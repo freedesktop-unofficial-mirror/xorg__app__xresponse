@@ -1,0 +1,45 @@
+2005-03-07  mallum,,,  <mallum@openedhand.com>
+
+	* README:
+	* configure.ac:
+	* xresponse.c: (get_server_time), (get_xevent_timed), (fake_event),
+	(wait_response), (usage), (main):
+	Various tweaks.
+
+2005-01-18  mallum,,,  <mallum@openedhand.com>
+
+	* README:
+	Populate
+	* configure.ac:
+	Bump up to 0.2
+	* xresponse.c: (get_xevent_timed), (usage), (main):
+	Add support for '-i' switch
+
+2005-01-18  mallum,,,  <mallum@openedhand.com>
+
+	* xresponse.c: (handle_xerror), (log_action), (get_server_time),
+	(get_xevent_timed), (setup_display), (eat_damage), (fake_event),
+	(wait_response), (usage), (main):
+	Redo command line parsing with extra opts and loop.	
+
+2005-01-18  mallum,,,  <mallum@openedhand.com>
+
+	* xresponse.c: (log_action), (wait_response), (usage), (main):
+	Improve option handling, log output.
+
+2005-01-17  mallum,,,  <mallum@openedhand.com>
+
+	* Makefile.am:
+	* configure.ac:
+	* interaction.c:
+	* xresponse.c:
+	rename interaction.c -> xresponse.c
+
+2005-01-17  mallum,,,  <mallum@openedhand.com>
+
+	* Makefile.am:
+	* autogen.sh:
+	* configure.ac:
+	Autotoolify
+	* interaction.c:
+	Refactor a little

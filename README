@@ -1,0 +1,59 @@
+xresponse
+====
+
+'xresponse' is a simple tool for meassuring UI response times to a
+full mouse click event. It requires the Xtest, to 'fake' the mouse
+event, and XDamage, to report areas of the display that have changed.
+
+
+Building
+====
+
+Its recommended you have the freedesktop.org autotooled xlibs
+installed with pkg-config (.pc ) files for xlibs, xext, xtst and
+xdamage. Then it should be a case of the usual ./configure, make and
+make install.
+
+
+Usage
+===
+
+xresponse <-o|--logfile output> [commands..]
+
+Commands are any combination/order of;
+
+-c|--click <XxY>                Send click and await damage response
+-m|--monitor <WIDTHxHEIGHT+X+Y> Watch area for damage ( default fullscreen )
+-w|--wait <seconds>             Max time to wait for damage, set to 0 to
+                                monitor for ever. 
+                                ( default 5 secs)
+-s|--stamp <string>             Write 'string' to log file
+
+-i|--inspect                    Just display damage events
+
+
+Examples
+===
+
+Click mouse at 100,100 and collect max 5 seconds of damage events;
+
+% xresponse -c 100x100
+
+Click the mouse at 100x100, 100x150 and 200x200 colecting a max second
+of damage for each only in 240x320+0+0;
+
+% xresponse -w 1  -m 240x320+0+0 -c 100x100 -c 100x150 -c 200x200
+
+Monitor all damage for ever;
+
+% xresponse -w 0 -i
+
+Monitor only top corner of screen for 10 seconds, then send a click collecting
+5 seconds of damage
+
+% xresponse -w 10 -m 240x320+0+0 -i -w 5 -c 100x100
+
+Tips
+===
+
+- you can use 'xmag' to figure out screen co-ords for window clicks.
