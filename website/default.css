@@ -1,0 +1,39 @@
+body {
+     margin: 0px;
+     padding-top: 0px;
+     background-color: white;
+     font-family: sans-serif;
+     color: black;
+}
+
+#header {
+	background: url(ohside.png) no-repeat right top;
+	height: 100px;
+}
+
+#header h1 {
+   color: #069;
+   margin-top: 0px;
+   margin-left: 20px;
+   padding-top: 20px;
+   padding-right: 100px;
+   font-size: 200%;
+   text-align: right;
+}
+
+#content {
+  margin-left: 30px;
+  margin-right: 30px;
+
+
+}
+
+#footer {
+	color: #aaa;
+	text-align: center;
+	font-size: 11px;
+}
+
+#footer a {
+	color: #aaa;
+}
