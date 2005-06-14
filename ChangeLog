@@ -1,3 +1,10 @@
+2005-06-14  mallum,,,  <mallum@openedhand.com>
+
+	* README:
+	* xresponse.c: (handle_xerror), (fake_event), (wait_response),
+	(usage), (main):
+	Add initial dragging code
+
 2005-03-07  mallum,,,  <mallum@openedhand.com>
 
 	* README:

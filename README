@@ -23,6 +23,7 @@ xresponse <-o|--logfile output> [commands..]
 Commands are any combination/order of;
 
 -c|--click <XxY>                Send click and await damage response
+-d|--drag <XxY,XxY,XxY,XxY..>   Simulate mouse drag and collect damage
 -m|--monitor <WIDTHxHEIGHT+X+Y> Watch area for damage ( default fullscreen )
 -w|--wait <seconds>             Max time to wait for damage, set to 0 to
                                 monitor for ever. 
@@ -38,6 +39,12 @@ Examples
 Click mouse at 100,100 and collect max 5 seconds of damage events;
 
 % xresponse -c 100x100
+
+Click and hold mouse at 100,100, then move to 101,100, then 105,100,
+then 110,100 and finally release mouse. Damage is collected between
+each point with max 5 seconds.
+
+% xresponse -d 100x100,101x100,105x100,110x100
 
 Click the mouse at 100x100, 100x150 and 200x200 colecting a max second
 of damage for each only in 240x320+0+0;

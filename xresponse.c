@@ -40,6 +40,7 @@ int        DamageEventNum;       /* Damage Ext Event ID */
 Atom       AtomTimestamp;        /* Atom for getting server time */
 int        DamageWaitSecs = 5;   /* Max time to collect damamge */
 Rectangle  InterestedDamageRect; /* Damage rect to monitor */
+Bool       MouseButtonIsLocked = False; /* For drag code */
 
 int 
 handle_xerror(Display *dpy, XErrorEvent *e)
@@ -53,6 +54,18 @@ handle_xerror(Display *dpy, XErrorEvent *e)
   exit(1);
 }
 
+/* for 'dragging' */
+void
+lock_mouse_button_down(void)
+{
+  MouseButtonIsLocked = True;
+}
+
+void
+unlock_mouse_button_down(void)
+{
+  MouseButtonIsLocked = False;
+}
 
 /** 
  * Perform simple logging with timestamp and diff from last log
@@ -244,7 +257,9 @@ fake_event(Display *dpy, int x, int y)
 
   /* Sent click */
   XTestFakeButtonEvent(dpy, Button1, True, CurrentTime);
-  XTestFakeButtonEvent(dpy, Button1, False, CurrentTime);
+
+  if (!MouseButtonIsLocked) 	/* only release if not dragging */
+    XTestFakeButtonEvent(dpy, Button1, False, CurrentTime);
 
   return start;
 }
@@ -301,6 +316,8 @@ usage(char *progname)
   fprintf(stderr, "%s: usage, %s <-o|--logfile output> [commands..]\n" 
 	          "Commands are any combination/order of;\n"
 	          "-c|--click <XxY>                Send click and await damage response\n" 
+	          "-d|--drag <XxY,XxY,XxY,XxY..>   Simulate mouse drag and collect damage\n" 
+
 	          "-m|--monitor <WIDTHxHEIGHT+X+Y> Watch area for damage ( default fullscreen )\n"
 	          "-w|--wait <seconds>             Max time to wait for damage ( default 5 secs)\n"
 	          "-s|--stamp <string>             Write 'string' to log file\n\n"
@@ -399,6 +416,51 @@ main(int argc, char **argv)
 	  /* 
 	  log_action(0, "Set event timout to  %isecs\n", DamageWaitSecs);
 	  */
+	  continue;
+	}
+
+      if (streq("-d", argv[i]) || streq("--drag", argv[i])) 
+	{
+	  char *s = NULL, *p = NULL;
+	  
+	  if (++i>=argc) usage (argv[0]);
+
+	  s = p = argv[i];
+
+
+
+	  while (*p != '\0')
+	    {
+	      if (*p == ',')
+		{
+		  lock_mouse_button_down();
+
+		  *p = '\0';
+
+		  cnt = sscanf(s, "%ux%u", &x, &y);
+		  if (cnt != 2) 
+		    {
+		      fprintf(stderr, "*** failed to parse '%s'\n", argv[i]);
+		      usage(argv[0]);
+		    }
+		  
+		  /* last passed point make sure button released */
+		  if (*(p+1) != ',')
+		    unlock_mouse_button_down();
+
+		  /* Send the event */
+		  log_action(fake_event(dpy, x, y), 0, 
+			     "Dragged to %ix%i\n", x, y);
+	  
+		  /* .. and wait for the damage response */
+		  wait_response(dpy);
+
+		  s = p+1;
+		}
+	      p++;
+	    }
+	  
+
 	  continue;
 	}
 
