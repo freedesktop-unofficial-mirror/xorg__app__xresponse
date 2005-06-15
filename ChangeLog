@@ -1,3 +1,9 @@
+2005-06-15  mallum,,,  <mallum@openedhand.com>
+
+	* xresponse.c: (handle_xerror), (fake_event), (main):
+	Rework drag code. 
+	Dont ignore last drag point.
+
 2005-06-14  mallum,,,  <mallum@openedhand.com>
 
 	* README:

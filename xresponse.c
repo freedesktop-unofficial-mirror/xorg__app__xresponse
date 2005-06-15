@@ -40,7 +40,12 @@ int        DamageEventNum;       /* Damage Ext Event ID */
 Atom       AtomTimestamp;        /* Atom for getting server time */
 int        DamageWaitSecs = 5;   /* Max time to collect damamge */
 Rectangle  InterestedDamageRect; /* Damage rect to monitor */
-Bool       MouseButtonIsLocked = False; /* For drag code */
+
+enum { /* for 'dragging' */
+  XR_BUTTON_STATE_NONE,
+  XR_BUTTON_STATE_PRESS,
+  XR_BUTTON_STATE_RELEASE
+};
 
 int 
 handle_xerror(Display *dpy, XErrorEvent *e)
@@ -54,18 +59,6 @@ handle_xerror(Display *dpy, XErrorEvent *e)
   exit(1);
 }
 
-/* for 'dragging' */
-void
-lock_mouse_button_down(void)
-{
-  MouseButtonIsLocked = True;
-}
-
-void
-unlock_mouse_button_down(void)
-{
-  MouseButtonIsLocked = False;
-}
 
 /** 
  * Perform simple logging with timestamp and diff from last log
@@ -255,10 +248,29 @@ fake_event(Display *dpy, int x, int y)
 
   start = get_server_time(dpy);
 
-  /* Sent click */
+  /* 'click' mouse */
   XTestFakeButtonEvent(dpy, Button1, True, CurrentTime);
+  XTestFakeButtonEvent(dpy, Button1, False, CurrentTime);
 
-  if (!MouseButtonIsLocked) 	/* only release if not dragging */
+  return start;
+}
+
+static Time
+drag_event(Display *dpy, int x, int y, int button_state)
+{
+  Time start;
+
+  start = get_server_time(dpy);
+
+  XTestFakeMotionEvent(dpy, DefaultScreen(dpy), x, y, CurrentTime);
+
+  if (button_state == XR_BUTTON_STATE_PRESS)
+    {
+      eat_damage(dpy); 	/* ignore damage from first drag */
+      XTestFakeButtonEvent(dpy, Button1, True, CurrentTime);
+    }
+
+  if (button_state == XR_BUTTON_STATE_RELEASE)
     XTestFakeButtonEvent(dpy, Button1, False, CurrentTime);
 
   return start;
@@ -422,20 +434,32 @@ main(int argc, char **argv)
       if (streq("-d", argv[i]) || streq("--drag", argv[i])) 
 	{
 	  char *s = NULL, *p = NULL;
+	  int button_state = XR_BUTTON_STATE_PRESS;
 	  
 	  if (++i>=argc) usage (argv[0]);
 
 	  s = p = argv[i];
 
-
-
-	  while (*p != '\0')
+	  while (1)
 	    {
-	      if (*p == ',')
+	      if (*p == ',' || *p == '\0')
 		{
-		  lock_mouse_button_down();
+		  Bool end = False;
 
-		  *p = '\0';
+		  if (*p == '\0')
+		    {
+		      if (button_state == XR_BUTTON_STATE_PRESS)
+			{
+			  fprintf(stderr, 
+				  "*** Need at least 2 drag points!\n");
+			  usage(argv[0]);
+			}
+
+		      /* last passed point so make sure button released */
+		      button_state = XR_BUTTON_STATE_RELEASE;
+		      end = True;
+		    }
+		  else *p = '\0';
 
 		  cnt = sscanf(s, "%ux%u", &x, &y);
 		  if (cnt != 2) 
@@ -443,17 +467,19 @@ main(int argc, char **argv)
 		      fprintf(stderr, "*** failed to parse '%s'\n", argv[i]);
 		      usage(argv[0]);
 		    }
-		  
-		  /* last passed point make sure button released */
-		  if (*(p+1) != ',')
-		    unlock_mouse_button_down();
 
 		  /* Send the event */
-		  log_action(fake_event(dpy, x, y), 0, 
+		  log_action(drag_event(dpy, x, y, button_state), 0, 
 			     "Dragged to %ix%i\n", x, y);
 	  
 		  /* .. and wait for the damage response */
 		  wait_response(dpy);
+
+		  /* Make sure button state set to none after first point */
+		  button_state = XR_BUTTON_STATE_NONE;
+
+		  if (end)
+		    break;
 
 		  s = p+1;
 		}
