@@ -472,8 +472,6 @@ main(int argc, char **argv)
 		  log_action(drag_event(dpy, x, y, button_state), 0, 
 			     "Dragged to %ix%i\n", x, y);
 	  
-		  /* .. and wait for the damage response */
-		  wait_response(dpy);
 
 		  /* Make sure button state set to none after first point */
 		  button_state = XR_BUTTON_STATE_NONE;
@@ -485,7 +483,9 @@ main(int argc, char **argv)
 		}
 	      p++;
 	    }
-	  
+
+	  /* .. and wait for the damage response */
+	  wait_response(dpy);
 
 	  continue;
 	}
