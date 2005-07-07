@@ -35,11 +35,12 @@ typedef struct Rectangle { int x,y,width,height; } Rectangle;
  * Global variables
  */
 
-FILE      *LogFile = NULL;       /* The file to output the log output too */
-int        DamageEventNum;       /* Damage Ext Event ID */
-Atom       AtomTimestamp;        /* Atom for getting server time */
-int        DamageWaitSecs = 5;   /* Max time to collect damamge */
-Rectangle  InterestedDamageRect; /* Damage rect to monitor */
+static FILE      *LogFile = NULL;       /* The file to output the log output too */
+static int        DamageEventNum;       /* Damage Ext Event ID */
+static Atom       AtomTimestamp;        /* Atom for getting server time */
+static int        DamageWaitSecs = 5;   /* Max time to collect damamge */
+static Rectangle  InterestedDamageRect; /* Damage rect to monitor */
+static Time       LastEventTime;      /* When last last event was started */
 
 enum { /* for 'dragging' */
   XR_BUTTON_STATE_NONE,
@@ -47,7 +48,7 @@ enum { /* for 'dragging' */
   XR_BUTTON_STATE_RELEASE
 };
 
-int 
+static int 
 handle_xerror(Display *dpy, XErrorEvent *e)
 {
   /* Really only here for debugging, for gdb backtrace */
@@ -63,10 +64,9 @@ handle_xerror(Display *dpy, XErrorEvent *e)
 /** 
  * Perform simple logging with timestamp and diff from last log
  */
-void
+static void
 log_action(Time time, int is_stamp, const char *format, ...)
 {
-  static Time last_time;
   va_list     ap;
   char       *tmp = NULL;
   static int  displayed_header;
@@ -91,12 +91,10 @@ log_action(Time time, int is_stamp, const char *format, ...)
     {
       fprintf(LogFile, "%10lums : %5lums : %s",
 	      time,
-	      (last_time > 0 && time > 0) ? time - last_time : 0,
+	      (LastEventTime > 0 && time > 0) ? time - LastEventTime : 0,
 	      tmp);
     }
 
-  if (time) last_time = time;
-  
   if (tmp) free(tmp);
 }
 
@@ -333,7 +331,8 @@ usage(char *progname)
 	          "-m|--monitor <WIDTHxHEIGHT+X+Y> Watch area for damage ( default fullscreen )\n"
 	          "-w|--wait <seconds>             Max time to wait for damage ( default 5 secs)\n"
 	          "-s|--stamp <string>             Write 'string' to log file\n\n"
-	          "-i|--inspect                    Just display damage events\n",
+	          "-i|--inspect                    Just display damage events\n"
+	          "-v|--verbose                    Output response to all command line options \n\n",
 	  progname, progname);
   exit(1);
 }
@@ -342,7 +341,7 @@ int
 main(int argc, char **argv) 
 {
   Display *dpy;
-  int      cnt, x, y, i = 0;
+  int      cnt, x, y, i = 0, verbose = 0;
 
   if (argc == 1)
     usage(argv[0]);
@@ -362,9 +361,15 @@ main(int argc, char **argv)
 
   if (LogFile == NULL) 
     LogFile = stdout;
-  
+
   while (++i < argc)
     {
+      if (streq(argv[i],"-v") || streq(argv[i],"--verbose"))
+        {
+	   verbose = 1;
+	   continue;
+	}
+
       if (streq("-c", argv[i]) || streq("--click", argv[i])) 
 	{
 	  if (++i>=argc) usage (argv[0]);
@@ -377,7 +382,8 @@ main(int argc, char **argv)
 	    }
 	  
 	  /* Send the event */
-	  log_action(fake_event(dpy, x, y), 0, "Clicked %ix%i\n", x, y);
+	  LastEventTime = fake_event(dpy, x, y);
+	  log_action(LastEventTime, 0, "Clicked %ix%i\n", x, y);
 	  
 	  /* .. and wait for the damage response */
 	  wait_response(dpy);
@@ -407,11 +413,10 @@ main(int argc, char **argv)
 	      usage(argv[0]);
 	    }
 
-	  /*
-	  printf("Set monitor rect to %ix%i+%i+%i\n",
-		 InterestedDamageRect.x,InterestedDamageRect.y,
-		 InterestedDamageRect.width,InterestedDamageRect.height);
-	  */
+	  if (verbose)
+	      printf("Set monitor rect to %ix%i+%i+%i\n",
+		     InterestedDamageRect.x,InterestedDamageRect.y,
+		     InterestedDamageRect.width,InterestedDamageRect.height);
 
 	  continue;
 	}
@@ -425,16 +430,17 @@ main(int argc, char **argv)
 	      fprintf(stderr, "*** failed to parse '%s'\n", argv[i]);
 	      usage(argv[0]);
 	    }
-	  /* 
-	  log_action(0, "Set event timout to  %isecs\n", DamageWaitSecs);
-	  */
+	  if (verbose)
+	    log_action(0, 0, "Set event timout to %isecs\n", DamageWaitSecs);
+
 	  continue;
 	}
 
       if (streq("-d", argv[i]) || streq("--drag", argv[i])) 
 	{
+	  Time drag_time;
 	  char *s = NULL, *p = NULL;
-	  int button_state = XR_BUTTON_STATE_PRESS;
+	  int first_drag = 1, button_state = XR_BUTTON_STATE_PRESS;
 	  
 	  if (++i>=argc) usage (argv[0]);
 
@@ -469,9 +475,13 @@ main(int argc, char **argv)
 		    }
 
 		  /* Send the event */
-		  log_action(drag_event(dpy, x, y, button_state), 0, 
-			     "Dragged to %ix%i\n", x, y);
-	  
+		  drag_time = drag_event(dpy, x, y, button_state);
+		  if (first_drag)
+		    {
+		      LastEventTime = drag_time;
+		      first_drag = 0;
+		    }
+		  log_action(drag_time, 0, "Dragged to %ix%i\n", x, y);
 
 		  /* Make sure button state set to none after first point */
 		  button_state = XR_BUTTON_STATE_NONE;
@@ -492,6 +502,8 @@ main(int argc, char **argv)
 
       if (streq("-i", argv[i]) || streq("--inspect", argv[i])) 
 	{
+	  if (verbose)
+	    log_action(0, 0, "Just displaying damage events until timeout\n");
 	  wait_response(dpy);
 	  continue;
 	}

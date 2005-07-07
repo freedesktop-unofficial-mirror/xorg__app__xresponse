@@ -1,3 +1,9 @@
+2005-07-07  mallum  <mallum@openedhand.com>
+
+	* xresponse.c: (log_action), (usage), (main):
+	Patch via Eero, add basic verbosity, ignore diff on out of order
+        server timestamps
+
 2005-06-16  mallum,,,  <mallum@openedhand.com>
 
 	* xresponse.c: (main):
