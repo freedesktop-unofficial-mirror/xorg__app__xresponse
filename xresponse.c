@@ -127,7 +127,7 @@ get_xevent_timed(Display        *dpy,
 		 struct timeval *tv)      /* in seconds  */
 {
 
-  if (tv == NULL || (tv->tv_sec == 0 && tv->tv_usec == 0))
+  if (tv == NULL)
     {
       XNextEvent(dpy, event_return);
       return True;
@@ -282,12 +282,16 @@ wait_response(Display *dpy)
 {
   XEvent e;
   struct timeval tv; 
-  int    waitsecs, lastsecs;
+  struct timeval *timeout = NULL;
 
-  tv.tv_sec  = lastsecs = DamageWaitSecs;
-  tv.tv_usec = 0;
+  if (DamageWaitSecs)
+    {
+      tv.tv_sec = DamageWaitSecs;
+      tv.tv_usec = 0;
+      timeout = &tv;
+    }
 
-  while (get_xevent_timed(dpy, &e, &tv))
+  while (get_xevent_timed(dpy, &e, timeout))
     {
       if (e.type == DamageEventNum + XDamageNotify) 
 	{
@@ -302,19 +306,15 @@ wait_response(Display *dpy)
 			 dev->area.width, dev->area.height, 
 			 dev->area.x, dev->area.y);
 	    }
-	  else waitsecs = lastsecs; /* Reset */
 	  
 	  XDamageSubtract(dpy, dev->damage, None, None);
 	} 
       else 
 	{
-	  waitsecs = lastsecs; /* Reset */
 	  fprintf(stderr, "Got unwanted event type %d\n", e.type);
 	}
 
       fflush(LogFile);
-
-      lastsecs = waitsecs;
     }
 
   return True;
@@ -329,7 +329,9 @@ usage(char *progname)
 	          "-d|--drag <XxY,XxY,XxY,XxY..>   Simulate mouse drag and collect damage\n" 
 
 	          "-m|--monitor <WIDTHxHEIGHT+X+Y> Watch area for damage ( default fullscreen )\n"
-	          "-w|--wait <seconds>             Max time to wait for damage ( default 5 secs)\n"
+	          "-w|--wait <seconds>             Max time to wait for damage, set to 0 to\n"
+	          "                                monitor for ever.\n"
+	          "                                ( default 5 secs)\n"
 	          "-s|--stamp <string>             Write 'string' to log file\n\n"
 	          "-i|--inspect                    Just display damage events\n"
 	          "-v|--verbose                    Output response to all command line options \n\n",

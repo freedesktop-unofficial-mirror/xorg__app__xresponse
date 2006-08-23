@@ -1,3 +1,9 @@
+2006-08-23  Matthew Allum  <mallum@openedhand.com>
+
+	* xresponse.c: (get_xevent_timed), (wait_response), (usage):
+	Patch from Tuukka Tolvanen to explain --wait 0 in help and
+	avoid potential infinite loop (  #38466 )
+
 2005-07-07  mallum  <mallum@openedhand.com>
 
 	* xresponse.c: (log_action), (usage), (main):
