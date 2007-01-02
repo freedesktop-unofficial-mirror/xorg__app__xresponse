@@ -1,0 +1,57 @@
+<Project xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/"
+	xmlns="http://usefulinc.com/ns/doap#">
+
+	<name>XResponse</name>
+	<shortname>XResponse</shortname>
+	<created>2006-21-11</created>
+
+	<shortdesc xml:lang="en">XResponse is a tool for meassuring user interface response time to user input.</shortdesc>
+
+	<description xml:lang="en"> 
+
+        XResponse is a simple tool for meassuring UI response times to
+        a full mouse click event. It requires the Xtest, to 'fake' the
+        mouse event, and XDamage, to report areas of the display that
+        have changed.
+
+	</description>
+
+	<license rdf:resource="http://usefulinc.com/doap/licenses/gpl" />
+        <bug-database rdf:resource="http://bugzilla.o-hand.com/enter_bug.cgi?product=xresponse"/>
+        <os>linux</os>
+        <programming-language>C</programming-language>
+        <category rdf:resource="http://labs.o-hand.com/doap/category/tools"/>
+        <category rdf:resource="http://labs.o-hand.com/doap/category/x11"/>
+	<maintainer>
+		<foaf:Person>
+			<foaf:name>Matthew Allum</foaf:name>
+			<foaf:mbox rdf:resource="mailto:mallum@o-hand.com"/>
+		</foaf:Person>
+	</maintainer>
+
+	<author>
+		<foaf:Person>
+			<foaf:name>Matthew Allum</foaf:name>
+			<foaf:mbox rdf:resource="mailto:mallum@o-hand.com"/>
+		</foaf:Person>
+	</author>
+
+        <repository>
+		<SVNRepository>
+			<browse rdf:resource="http://svn.o-hand.com/view/misc/trunk/xresponse"/>
+			<location rdf:resource="https://svn.o-hand.com/repos/misc/trunk/xresponse"/>
+		</SVNRepository>
+        </repository>
+
+	<release>
+		<Version>
+			<name>xresponse-0.3.2</name>
+			<created>2006-02-21</created>
+			<revision>0.3.2</revisio>
+			<file-release rdf:resource="http://projects.o-hand.com/sources/xresponse/xresponse-0.3.2.tar.gz" />
+		</Version>
+	</release>
+
+
+</Project>

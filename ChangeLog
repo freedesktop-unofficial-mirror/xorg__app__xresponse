@@ -1,3 +1,8 @@
+2007-01-02  Matthew Allum  <mallum@openedhand.com>
+
+	* xresponse.doap:
+	Add a doap file.
+
 2006-08-23  Matthew Allum  <mallum@openedhand.com>
 
 	* xresponse.c: (get_xevent_timed), (wait_response), (usage):
