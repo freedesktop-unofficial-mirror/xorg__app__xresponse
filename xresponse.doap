@@ -48,7 +48,7 @@
 		<Version>
 			<name>xresponse-0.3.2</name>
 			<created>2006-02-21</created>
-			<revision>0.3.2</revisio>
+			<revision>0.3.2</revision>
 			<file-release rdf:resource="http://projects.o-hand.com/sources/xresponse/xresponse-0.3.2.tar.gz" />
 		</Version>
 	</release>
