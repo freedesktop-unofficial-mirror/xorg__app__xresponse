@@ -272,6 +272,19 @@ drag_event(Display *dpy, int x, int y, int button_state)
   return start;
 }
 
+/**
+ * Returns TRUE if the two rectangles overlap, FALSE otherwise.
+ */
+static int
+overlap (XRectangle r1, XRectangle r2)
+{
+  return
+    r1.x <= (r2.x + r2.width) &&
+    (r1.x + r1.width) >= r2.x &&
+    r1.y <= (r2.y + r2.height) &&
+    (r1.y + r1.height) >= r2.y;
+}
+
 /** 
  * Waits for a damage 'response' to above click
  */
@@ -295,10 +308,7 @@ wait_response(Display *dpy)
 	{
 	  XDamageNotifyEvent *dev = (XDamageNotifyEvent*)&e;
 	  
-	  if (dev->area.x >= InterestedDamageRect.x
-	      && dev->area.width <= InterestedDamageRect.width
-	      && dev->area.y >= InterestedDamageRect.y
-	      && dev->area.height <= InterestedDamageRect.height)
+	  if (overlap (dev->area, InterestedDamageRect))
 	    {
 	      log_action(dev->timestamp, 0, "Got damage event %dx%d+%d+%d\n",
 			 dev->area.width, dev->area.height, 

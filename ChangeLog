@@ -1,6 +1,11 @@
 2007-09-20  Ross Burton  <ross@openedhand.com>
 
 	* xresponse.c:
+	Fix overlap detection (thanks Mika Yrjölä)
+
+2007-09-20  Ross Burton  <ross@openedhand.com>
+
+	* xresponse.c:
 	Use XRectangle instead of a custom Rectangle struct, and fix a
 	warning in XChangeProperty.
 
