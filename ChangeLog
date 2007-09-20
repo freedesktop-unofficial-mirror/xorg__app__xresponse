@@ -1,6 +1,12 @@
 2007-09-20  Ross Burton  <ross@openedhand.com>
 
 	* xresponse.c:
+	Use XRectangle instead of a custom Rectangle struct, and fix a
+	warning in XChangeProperty.
+
+2007-09-20  Ross Burton  <ross@openedhand.com>
+
+	* xresponse.c:
 	Fix order of coordinates when outputting the monitor rectangle
 	(thanks Mika Yrjölä)
 

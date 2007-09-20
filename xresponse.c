@@ -29,8 +29,6 @@
 
 #define streq(a,b)      (strcmp(a,b) == 0)
 
-typedef struct Rectangle { int x,y,width,height; } Rectangle;
-
 /*
  * Global variables
  */
@@ -39,7 +37,7 @@ static FILE      *LogFile = NULL;       /* The file to output the log output too
 static int        DamageEventNum;       /* Damage Ext Event ID */
 static Atom       AtomTimestamp;        /* Atom for getting server time */
 static int        DamageWaitSecs = 5;   /* Max time to collect damamge */
-static Rectangle  InterestedDamageRect; /* Damage rect to monitor */
+static XRectangle  InterestedDamageRect; /* Damage rect to monitor */
 static Time       LastEventTime;      /* When last last event was started */
 
 enum { /* for 'dragging' */
@@ -106,7 +104,7 @@ get_server_time(Display *dpy)
 {
   XChangeProperty (dpy, DefaultRootWindow (dpy), 
 		   AtomTimestamp, AtomTimestamp, 8, 
-		   PropModeReplace, "a", 1);
+		   PropModeReplace, (unsigned char*)"a", 1);
   for (;;) 
     {
       XEvent xevent;
@@ -405,7 +403,7 @@ main(int argc, char **argv)
 	{
 	  if (++i>=argc) usage (argv[0]);
 	  
-	  if ((cnt = sscanf(argv[i], "%ux%u+%u+%u", 
+	  if ((cnt = sscanf(argv[i], "%hux%hu+%hu+%hu", 
 			    &InterestedDamageRect.width,
 			    &InterestedDamageRect.height,
 			    &InterestedDamageRect.x,
