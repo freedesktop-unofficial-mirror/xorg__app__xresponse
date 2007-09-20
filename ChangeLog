@@ -1,3 +1,9 @@
+2007-09-20  Ross Burton  <ross@openedhand.com>
+
+	* xresponse.c:
+	Fix order of coordinates when outputting the monitor rectangle
+	(thanks Mika Yrjölä)
+
 2007-01-02  Matthew Allum  <mallum@openedhand.com>
 
 	* xresponse.doap:

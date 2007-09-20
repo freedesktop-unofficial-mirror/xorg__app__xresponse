@@ -417,8 +417,8 @@ main(int argc, char **argv)
 
 	  if (verbose)
 	      printf("Set monitor rect to %ix%i+%i+%i\n",
-		     InterestedDamageRect.x,InterestedDamageRect.y,
-		     InterestedDamageRect.width,InterestedDamageRect.height);
+		     InterestedDamageRect.width,InterestedDamageRect.height,
+		     InterestedDamageRect.x,InterestedDamageRect.y);
 
 	  continue;
 	}
